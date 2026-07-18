@@ -23,8 +23,9 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npm run build
-      - name: Add .nojekyll
-        run: touch out/.nojekyll
+      - name: Prepare artifact for /portfolio/ subdirectory
+        run: |
+          touch out/portfolio/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out
