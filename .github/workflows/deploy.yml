@@ -25,7 +25,10 @@ jobs:
       - run: npm run build
       - name: Prepare artifact for /portfolio/ subdirectory
         run: |
-          touch out/portfolio/.nojekyll
+          mkdir -p out/portfolio
+          shopt -s extglob
+          mv out/!(portfolio) out/portfolio/
+          touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out

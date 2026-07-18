@@ -12,11 +12,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-const siteUrl = "https://kushalr.dev"
+const siteUrl = "https://kushal0508.github.io"
 const siteName = "Kushal R Portfolio"
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(`${siteUrl}/portfolio`),
   title: {
     default: "Kushal R | Odoo Techno-Functional Intern & Frontend Developer",
     template: "%s | Kushal R",
@@ -75,18 +75,18 @@ export const metadata: Metadata = {
     title: "Kushal R | Odoo Techno-Functional Intern & Frontend Developer",
     description:
       "Personal portfolio of Kushal R, an Odoo Techno-Functional Intern, Frontend Developer, Web Designer, and Freelance Web Developer based in Mysore, India.",
-    images: [`${siteUrl}/og-image.png`],
+    images: [`${siteUrl}/portfolio/og-image.png`],
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/portfolio/favicon.ico",
+    shortcut: "/portfolio/favicon-16x16.png",
+    apple: "/portfolio/apple-touch-icon.png",
   },
-  manifest: `${siteUrl}/site.webmanifest`,
+  manifest: `${siteUrl}/portfolio/manifest.webmanifest`,
   alternates: {
-    canonical: siteUrl,
+    canonical: `${siteUrl}/portfolio`,
     languages: {
-      "en-IN": siteUrl,
+      "en-IN": `${siteUrl}/portfolio`,
     },
   },
   category: "technology",
@@ -110,17 +110,17 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Person",
-              name: "Kushal R",
-              givenName: "Kushal",
-              familyName: "R",
-              jobTitle: "Odoo Techno-Functional Intern & Frontend Developer",
-              description:
-                "Final-year BCA student passionate about building business-driven digital solutions using Odoo ERP and modern frontend technologies. Focus on ERP customization, responsive web design, and practical business workflows.",
-              url: siteUrl,
-              email: "kushalshetty0508@gmail.com",
+__html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: "Kushal R",
+            givenName: "Kushal",
+            familyName: "R",
+            jobTitle: "Odoo Techno-Functional Intern & Frontend Developer",
+            description:
+              "Final-year BCA student passionate about building business-driven digital solutions using Odoo ERP and modern frontend technologies. Focus on ERP customization, responsive web design, and practical business workflows.",
+            url: `${siteUrl}/portfolio`,
+            email: "kushalshetty0508@gmail.com",
               telephone: "+91-77952-67355",
               address: {
                 "@type": "PostalAddress",
