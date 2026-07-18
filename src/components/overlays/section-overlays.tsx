@@ -466,8 +466,8 @@ export function Navigation() {
       <div
         id="mobile-menu"
         className={cn(
-          "md:hidden fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border transition-all duration-300 ease-in-out",
-          mobileMenuOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-full"
+          "md:hidden fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border transition-transform duration-300 ease-in-out",
+          mobileMenuOpen ? "open" : ""
         )}
         style={{ paddingTop: "5rem" }}
         role="navigation"
@@ -481,10 +481,8 @@ export function Navigation() {
                 key={label}
                 onClick={(e) => handleNavClick(e, section)}
                 className={cn(
-                  "w-full text-left px-4 py-3 text-base font-medium rounded-lg transition-all duration-300 interactive",
-                  active
-                    ? "text-primary bg-primary/10 border-l-4 border-primary"
-                    : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                  "mobile-nav-link w-full text-left px-4 py-3 text-base font-medium rounded-lg transition-all duration-300 interactive",
+                  active ? "active" : ""
                 )}
                 aria-current={active ? "page" : undefined}
               >
