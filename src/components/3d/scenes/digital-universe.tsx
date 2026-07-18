@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber"
 import { Float } from "@react-three/drei"
 import * as THREE from "three"
 import { useScrollState } from "@/lib/scroll-provider"
+import type { DeviceTier } from "@/lib/device-detect"
 
 const PRIMARY = "#6c5ce7"
 const ACCENT = "#fbbf24"
@@ -12,23 +13,24 @@ const GLOW = "#a29bfe"
 
 const random = Math.random
 
-export function DigitalUniverse() {
+export function DigitalUniverse({ deviceTier = "high" }: { deviceTier?: DeviceTier }) {
   const { progress } = useScrollState()
   const sectionProgress = Math.max(0, Math.min(1, (progress - 0.125) / 0.125))
 
   return (
     <group>
-      <Starfield sectionProgress={sectionProgress} />
-      <NebulaClouds sectionProgress={sectionProgress} />
-      <DataStreams sectionProgress={sectionProgress} />
-      <ConstellationNodes sectionProgress={sectionProgress} />
+      <Starfield sectionProgress={sectionProgress} deviceTier={deviceTier} />
+      <NebulaClouds sectionProgress={sectionProgress} deviceTier={deviceTier} />
+      <DataStreams sectionProgress={sectionProgress} deviceTier={deviceTier} />
+      <ConstellationNodes sectionProgress={sectionProgress} deviceTier={deviceTier} />
     </group>
   )
 }
 
-function Starfield({ sectionProgress }: { sectionProgress: number }) {
+function Starfield({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
+  const isLow = deviceTier === "low"
   const ref = useRef<THREE.Points>(null)
-  const count = 3000
+  const count = isLow ? 1200 : 3000
 
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3)
@@ -57,7 +59,7 @@ function Starfield({ sectionProgress }: { sectionProgress: number }) {
       depths[i] = radius
     }
     return { arr, colors, sizes, depths }
-  }, [])
+  }, [count])
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()
@@ -86,17 +88,18 @@ function Starfield({ sectionProgress }: { sectionProgress: number }) {
   )
 }
 
-function NebulaClouds({ sectionProgress }: { sectionProgress: number }) {
+function NebulaClouds({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
+  const isLow = deviceTier === "low"
   const layers = useMemo(
     () =>
-      Array.from({ length: 4 }).map((_, i) => ({
+      Array.from({ length: isLow ? 2 : 4 }).map((_, i) => ({
         z: -10 - i * 12,
         scale: 8 + i * 2,
         color: i % 3 === 0 ? PRIMARY : i % 3 === 1 ? GLOW : ACCENT,
         speed: 0.02 + i * 0.005,
         phase: i * 1.2,
       })),
-    [],
+    [isLow],
   )
 
   return (
@@ -108,7 +111,7 @@ function NebulaClouds({ sectionProgress }: { sectionProgress: number }) {
           scale={l.scale * sectionProgress}
           rotation={[0, 0, 0]}
         >
-          <sphereGeometry args={[1, 32, 32]} />
+          <sphereGeometry args={[1, isLow ? 16 : 32, isLow ? 16 : 32]} />
           <meshBasicMaterial
             color={l.color}
             transparent
@@ -123,11 +126,12 @@ function NebulaClouds({ sectionProgress }: { sectionProgress: number }) {
   )
 }
 
-function DataStreams({ sectionProgress }: { sectionProgress: number }) {
+function DataStreams({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
+  const isLow = deviceTier === "low"
   const streams = useMemo(
     () =>
-      Array.from({ length: 12 }).map((_, i) => {
-        const angle = (i / 12) * Math.PI * 2
+      Array.from({ length: isLow ? 6 : 12 }).map((_, i) => {
+        const angle = (i / (isLow ? 6 : 12)) * Math.PI * 2
         return {
           angle,
           radius: 6 + random() * 10,
@@ -138,7 +142,7 @@ function DataStreams({ sectionProgress }: { sectionProgress: number }) {
           thickness: 0.02 + random() * 0.02,
         }
       }),
-    [],
+    [isLow],
   )
 
   return (
@@ -208,11 +212,12 @@ function DataStreamLine({
   )
 }
 
-function ConstellationNodes({ sectionProgress }: { sectionProgress: number }) {
+function ConstellationNodes({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
+  const isLow = deviceTier === "low"
   const nodes = useMemo(
     () =>
-      Array.from({ length: 8 }).map((_, i) => ({
-        angle: (i / 8) * Math.PI * 2 + i * 0.2,
+      Array.from({ length: isLow ? 4 : 8 }).map((_, i) => ({
+        angle: (i / (isLow ? 4 : 8)) * Math.PI * 2 + i * 0.2,
         radius: 8 + random() * 8,
         height: (random() - 0.5) * 6,
         size: 0.15 + random() * 0.1,
@@ -220,7 +225,7 @@ function ConstellationNodes({ sectionProgress }: { sectionProgress: number }) {
         pulseSpeed: 1 + random() * 1.5,
         pulsePhase: random() * Math.PI * 2,
       })),
-    [],
+    [isLow],
   )
 
   return (

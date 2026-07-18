@@ -15,32 +15,31 @@ import { GalleryScene } from "./scenes/gallery"
 import { ChamberScene } from "./scenes/chamber"
 import { TerminalScene } from "./scenes/terminal"
 import { ErrorBoundary, CanvasErrorFallback, ThreeDCanvasWrapper } from "./error-boundary"
+import { getDeviceTier, isMobileDevice, getAdaptiveDPR } from "@/lib/device-detect"
+import type { DeviceTier } from "@/lib/device-detect"
 
-function CanvasContent({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+function CanvasContent({ prefersReducedMotion, deviceTier, isMobile }: { prefersReducedMotion: boolean; deviceTier: DeviceTier; isMobile: boolean }) {
   return (
     <>
       <color attach="background" args={["#08080f"]} />
-      {/* Fog density reflects per-scene palette via <AtmosphericFog/> in effects. */}
-      <fog attach="fog" args={["#08080f", 14, 110]} />
+      <fog attach="fog" args={["#08080f", deviceTier === "low" ? 8 : 14, deviceTier === "low" ? 60 : 110]} />
 
-      <CameraController reducedMotion={prefersReducedMotion} />
-      <SceneLighting />
+      <CameraController reducedMotion={prefersReducedMotion} deviceTier={deviceTier} isMobile={isMobile} />
+      <SceneLighting reducedMotion={prefersReducedMotion} deviceTier={deviceTier} />
+      <ConnectedWorld reducedMotion={prefersReducedMotion} deviceTier={deviceTier} />
 
-      {/* The connected environment stitches every scene into one world. */}
-      <ConnectedWorld reducedMotion={prefersReducedMotion} />
-      <TransitionStreams />
+      {!isMobile && <TransitionStreams />}
 
-      {/* Distinct scenes ride inside the world. */}
-      <OpeningScene reducedMotion={prefersReducedMotion} />
-      <DigitalUniverse />
-      <TechPlanets />
-      <CorridorScene />
-      <GalleryScene />
-      <ChamberScene />
-      <TerminalScene />
+      <OpeningScene reducedMotion={prefersReducedMotion} deviceTier={deviceTier} />
+      {!isMobile && <DigitalUniverse />}
+      {!isMobile && <TechPlanets />}
+      <CorridorScene reducedMotion={prefersReducedMotion} deviceTier={deviceTier} />
+      {!isMobile && <GalleryScene />}
+      {!isMobile && <ChamberScene />}
+      <TerminalScene reducedMotion={prefersReducedMotion} deviceTier={deviceTier} />
 
-      <AmbientParticles reducedMotion={prefersReducedMotion} />
-      <PostEffects reducedMotion={prefersReducedMotion} />
+      <AmbientParticles reducedMotion={prefersReducedMotion} count={isMobile ? 100 : deviceTier === "low" ? 200 : deviceTier === "medium" ? 400 : 800} />
+      {(!isMobile || prefersReducedMotion) && <PostEffects reducedMotion={prefersReducedMotion} deviceTier={deviceTier} />}
     </>
   )
 }
@@ -62,26 +61,32 @@ export default function CinematicCanvas() {
     return () => mediaQuery.removeEventListener("change", handler)
   }, [])
 
+  const deviceTier: DeviceTier = typeof window !== "undefined" ? getDeviceTier() : "high"
+  const isMobile = typeof window !== "undefined" ? isMobileDevice() : false
+  const dpr = typeof window !== "undefined" ? getAdaptiveDPR() : 1
+  const useMSAA = isMobile ? 0 : deviceTier === "high" ? 4 : deviceTier === "medium" ? 2 : 0
+
   return (
     <ErrorBoundary fallback={<CanvasErrorFallback />}>
       <ThreeDCanvasWrapper fallback={<CanvasErrorFallback />}>
         <Canvas
-          camera={{ position: [0, 1.6, 11], fov: 58, near: 0.1, far: 200 }}
-          dpr={[1, 1.2]}
+          camera={{ position: [0, 1.6, 11], fov: 58, near: 0.1, far: isMobile ? 100 : deviceTier === "low" ? 100 : 200 }}
+          dpr={[0.75, dpr]}
           gl={{
-            antialias: true,
+            antialias: useMSAA > 0,
             alpha: false,
             powerPreference: "high-performance",
             stencil: false,
             depth: true,
             toneMapping: 3,
-            toneMappingExposure: 1.15,
+            toneMappingExposure: isMobile ? 1.0 : 1.15,
+            preserveDrawingBuffer: false,
           }}
-          performance={{ min: 0.35 }}
-          frameloop="always"
+          performance={{ min: isMobile ? 0.15 : deviceTier === "low" ? 0.2 : 0.35 }}
+          frameloop={prefersReducedMotion || isMobile ? "demand" : "always"}
         >
           <Suspense fallback={null}>
-            <CanvasContent prefersReducedMotion={prefersReducedMotion} />
+            <CanvasContent prefersReducedMotion={prefersReducedMotion} deviceTier={deviceTier} isMobile={isMobile} />
           </Suspense>
         </Canvas>
       </ThreeDCanvasWrapper>

@@ -1,8 +1,6 @@
 import { MetadataRoute } from "next"
 
-export const dynamic = "force-static"
-
-const siteUrl = "https://kushal0508.github.io/portfolio"
+const siteUrl = "https://kushalr.dev"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

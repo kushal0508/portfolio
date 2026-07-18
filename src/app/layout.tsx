@@ -12,11 +12,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-const siteUrl = "https://kushal0508.github.io"
+const siteUrl = "https://kushalr.dev"
 const siteName = "Kushal R Portfolio"
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`${siteUrl}/portfolio`),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Kushal R | Odoo Techno-Functional Intern & Frontend Developer",
     template: "%s | Kushal R",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     "Amrita Vishwa Vidyapeetham",
     "Mysore",
   ],
-  authors: [{ name: "Kushal R", url: `${siteUrl}/portfolio` }],
+  authors: [{ name: "Kushal R", url: siteUrl }],
   creator: "Kushal R",
   publisher: "Kushal R",
   robots: {
@@ -54,14 +54,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: `${siteUrl}/portfolio`,
+    url: siteUrl,
     siteName,
     title: "Kushal R | Odoo Techno-Functional Intern & Frontend Developer",
     description:
       "Personal portfolio of Kushal R, an Odoo Techno-Functional Intern, Frontend Developer, Web Designer, and Freelance Web Developer based in Mysore, India.",
     images: [
       {
-        url: `${siteUrl}/portfolio/og-image.png`,
+        url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
         alt: "Kushal R - Odoo Techno-Functional Intern & Frontend Developer",
@@ -75,18 +75,18 @@ export const metadata: Metadata = {
     title: "Kushal R | Odoo Techno-Functional Intern & Frontend Developer",
     description:
       "Personal portfolio of Kushal R, an Odoo Techno-Functional Intern, Frontend Developer, Web Designer, and Freelance Web Developer based in Mysore, India.",
-    images: [`${siteUrl}/portfolio/og-image.png`],
+    images: [`${siteUrl}/og-image.png`],
   },
   icons: {
-    icon: "/portfolio/favicon.ico",
-    shortcut: "/portfolio/favicon-16x16.png",
-    apple: "/portfolio/apple-touch-icon.png",
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
   },
-  manifest: `${siteUrl}/portfolio/manifest.webmanifest`,
+  manifest: `${siteUrl}/site.webmanifest`,
   alternates: {
-    canonical: `${siteUrl}/portfolio`,
+    canonical: siteUrl,
     languages: {
-      "en-IN": `${siteUrl}/portfolio`,
+      "en-IN": siteUrl,
     },
   },
   category: "technology",
@@ -119,7 +119,7 @@ export default function RootLayout({
               jobTitle: "Odoo Techno-Functional Intern & Frontend Developer",
               description:
                 "Final-year BCA student passionate about building business-driven digital solutions using Odoo ERP and modern frontend technologies. Focus on ERP customization, responsive web design, and practical business workflows.",
-              url: `${siteUrl}/portfolio`,
+              url: siteUrl,
               email: "kushalshetty0508@gmail.com",
               telephone: "+91-77952-67355",
               address: {

@@ -4,6 +4,7 @@ import { useRef, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
 import * as THREE from "three"
 import { useScrollState } from "@/lib/scroll-provider"
+import type { DeviceTier } from "@/lib/device-detect"
 
 const PRIMARY = "#6c5ce7"
 const ACCENT = "#fbbf24"
@@ -12,31 +13,32 @@ const CYAN = "#00cec9"
 
 const random = Math.random
 
-export function CorridorScene() {
+export function CorridorScene({ deviceTier = "high" }: { deviceTier?: DeviceTier }) {
   const { progress } = useScrollState()
   const sectionProgress = Math.max(0, Math.min(1, (progress - 0.46) / 0.16))
   const intensity = Math.max(0, 1 - Math.abs(progress - 0.54) / 0.12)
 
   return (
     <group scale={intensity}>
-      <CorridorArchitecture sectionProgress={sectionProgress} />
-      <EnergyConduits sectionProgress={sectionProgress} />
-      <DataParticles sectionProgress={sectionProgress} />
+      <CorridorArchitecture sectionProgress={sectionProgress} deviceTier={deviceTier} />
+      <EnergyConduits sectionProgress={sectionProgress} deviceTier={deviceTier} />
+      <DataParticles sectionProgress={sectionProgress} deviceTier={deviceTier} />
       <HolographicDisplays sectionProgress={sectionProgress} />
     </group>
   )
 }
 
-function CorridorArchitecture({ sectionProgress }: { sectionProgress: number }) {
+function CorridorArchitecture({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
+  const isLow = deviceTier === "low"
   const arches = useMemo(
     () =>
-      Array.from({ length: 12 }).map((_, i) => ({
+      Array.from({ length: isLow ? 8 : 12 }).map((_, i) => ({
         z: -54 - i * 6,
         width: 6 + Math.sin(i * 0.5) * 1,
         height: 7 + Math.cos(i * 0.3) * 0.5,
         rotation: (Math.sin(i * 0.7) - 0.5) * 0.15,
       })),
-    [],
+    [isLow],
   )
 
   return (
@@ -91,7 +93,7 @@ function CorridorArchitecture({ sectionProgress }: { sectionProgress: number }) 
             rotation={[0, 0, Math.PI / 2]}
             scale={sectionProgress}
           >
-            <cylinderGeometry args={[0.02, 0.02, a.width + 0.4, 8]} />
+            <cylinderGeometry args={[0.02, 0.02, a.width + 0.4, isLow ? 4 : 8]} />
             <meshBasicMaterial
               color={PRIMARY}
               transparent
@@ -137,17 +139,18 @@ function CorridorArchitecture({ sectionProgress }: { sectionProgress: number }) 
   )
 }
 
-function EnergyConduits({ sectionProgress }: { sectionProgress: number }) {
+function EnergyConduits({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
+  const isLow = deviceTier === "low"
   const conduits = useMemo(
     () =>
-      Array.from({ length: 4 }).map((_, i) => ({
+      Array.from({ length: isLow ? 2 : 4 }).map((_, i) => ({
         side: i % 2 === 0 ? -1 : 1,
         offset: 3.5 + Math.floor(i / 2) * 0.5,
         color: [PRIMARY, ACCENT, GLOW, CYAN][i],
         phase: i * 1.2,
         speed: 0.5 + i * 0.1,
       })),
-    [],
+    [isLow],
   )
 
   return (
@@ -158,7 +161,7 @@ function EnergyConduits({ sectionProgress }: { sectionProgress: number }) {
           position={[c.side * c.offset, 2.5, 0]}
           scale={[1, 1, sectionProgress * 50]}
         >
-          <cylinderGeometry args={[0.08, 0.08, 1, 16]} />
+          <cylinderGeometry args={[0.08, 0.08, 1, isLow ? 8 : 16]} />
           <meshBasicMaterial
             color={c.color}
             transparent
@@ -172,8 +175,9 @@ function EnergyConduits({ sectionProgress }: { sectionProgress: number }) {
   )
 }
 
-function DataParticles({ sectionProgress }: { sectionProgress: number }) {
-  const count = 800
+function DataParticles({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
+  const isLow = deviceTier === "low"
+  const count = isLow ? 350 : 800
   const ref = useRef<THREE.Points>(null)
 
   const positions = useMemo(() => {
@@ -203,7 +207,7 @@ function DataParticles({ sectionProgress }: { sectionProgress: number }) {
       sizes[i] = 0.01 + random() * 0.02
     }
     return { arr, colors, sizes, initZ }
-  }, [])
+  }, [count])
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()

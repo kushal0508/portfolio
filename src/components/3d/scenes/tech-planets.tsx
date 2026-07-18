@@ -5,6 +5,7 @@ import { useFrame } from "@react-three/fiber"
 import { Float, Html } from "@react-three/drei"
 import * as THREE from "three"
 import { useScrollState } from "@/lib/scroll-provider"
+import type { DeviceTier } from "@/lib/device-detect"
 
 const PRIMARY = "#6c5ce7"
 const ACCENT = "#fbbf24"
@@ -22,9 +23,11 @@ const SKILL_CATEGORIES = [
   { name: "Design & Marketing", color: ROSE, icon: "palette", count: 3 },
 ]
 
-export function TechPlanets() {
+export function TechPlanets({ deviceTier = "high" }: { deviceTier?: DeviceTier }) {
   const { progress } = useScrollState()
   const groupRef = useRef<THREE.Group>(null)
+
+  const isLow = deviceTier === "low"
 
   const planets = useMemo(() => {
     return SKILL_CATEGORIES.map((cat, i) => {
@@ -37,14 +40,14 @@ export function TechPlanets() {
         x: Math.cos(angle) * radius,
         y: (i % 3 - 1) * 2.5,
         z: Math.sin(angle) * radius - 35,
-        size: 1.2 + (cat.count / 5) * 0.6,
+        size: isLow ? 1 : (1.2 + (cat.count / 5) * 0.6),
         rotationSpeed: 0.02 + i * 0.005,
         orbitSpeed: 0.01 + i * 0.002,
         initialAngle: angle,
         satellites: cat.count,
       }
     })
-  }, [])
+  }, [isLow])
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()
@@ -77,12 +80,12 @@ export function TechPlanets() {
   return (
     <group ref={groupRef} position={[0, 0, -34]} scale={intensity}>
       {planets.map((p, i) => (
-        <SkillPlanet key={i} planet={p} progress={progress} />
+        <SkillPlanet key={i} planet={p} progress={progress} deviceTier={deviceTier} />
       ))}
       {planets.map((p, i) => (
-        <SkillSatellites key={`sat-${i}`} planet={p} progress={progress} />
+        <SkillSatellites key={`sat-${i}`} planet={p} progress={progress} deviceTier={deviceTier} />
       ))}
-      <SkillParticleField progress={progress} />
+      <SkillParticleField progress={progress} deviceTier={deviceTier} />
     </group>
   )
 }
@@ -90,6 +93,7 @@ export function TechPlanets() {
 function SkillPlanet({
   planet,
   progress,
+  deviceTier,
 }: {
   planet: (typeof SKILL_CATEGORIES)[0] & {
     angle: number
@@ -101,10 +105,12 @@ function SkillPlanet({
     satellites: number
   }
   progress: number
+  deviceTier?: DeviceTier
 }) {
   const ref = useRef<THREE.Mesh>(null)
   const ringRef = useRef<THREE.Group>(null)
   const sectionProgress = Math.max(0, Math.min(1, (progress - 0.3) / 0.16))
+  const isLow = deviceTier === "low"
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()
@@ -117,20 +123,23 @@ function SkillPlanet({
     }
   })
 
+  const segments = deviceTier === "low" ? 16 : 32
+  const ringSegments = deviceTier === "low" ? 8 : 16
+
   return (
     <group position={[planet.x, planet.y, planet.z]}>
       <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
         <mesh ref={ref} castShadow receiveShadow>
-          <sphereGeometry args={[planet.size, 32, 32]} />
+          <sphereGeometry args={[planet.size, segments, segments]} />
           <meshPhysicalMaterial
             color={planet.color}
             metalness={0.5}
             roughness={0.15}
-            clearcoat={1}
+            clearcoat={isLow ? 0 : 1}
             clearcoatRoughness={0.1}
-            transmission={0.1}
+            transmission={isLow ? 0 : 0.1}
             thickness={0.5}
-            envMapIntensity={1.5}
+            envMapIntensity={deviceTier === "low" ? 0.5 : 1.5}
           />
         </mesh>
       </Float>
@@ -138,7 +147,7 @@ function SkillPlanet({
       <group ref={ringRef}>
         {Array.from({ length: 2 }).map((_, r) => (
           <mesh key={r} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[planet.size * (1.4 + r * 0.3), 0.03, 16, 64]} />
+            <torusGeometry args={[planet.size * (1.4 + r * 0.3), 0.03, ringSegments, 64]} />
             <meshBasicMaterial
               color={planet.color}
               transparent
@@ -181,11 +190,14 @@ function SkillPlanet({
 function SkillSatellites({
   planet,
   progress,
+  deviceTier,
 }: {
   planet: (typeof SKILL_CATEGORIES)[0] & { angle: number; radius: number; x: number; y: number; z: number; size: number; satellites: number }
   progress: number
+  deviceTier?: DeviceTier
 }) {
   const sectionProgress = Math.max(0, Math.min(1, (progress - 0.3) / 0.16))
+  const isLow = deviceTier === "low"
   const satellites = useMemo(
     () =>
       Array.from({ length: planet.satellites }).map((_, i) => {
@@ -234,9 +246,10 @@ function SkillSatellites({
   )
 }
 
-function SkillParticleField({ progress }: { progress: number }) {
+function SkillParticleField({ progress, deviceTier }: { progress: number; deviceTier?: DeviceTier }) {
   const sectionProgress = Math.max(0, Math.min(1, (progress - 0.3) / 0.16))
-  const count = 1500
+  const isLow = deviceTier === "low"
+  const count = isLow ? 400 : 1500
   const ref = useRef<THREE.Points>(null)
 
   const positions = useMemo(() => {
@@ -262,12 +275,12 @@ function SkillParticleField({ progress }: { progress: number }) {
       colors[i3 + 2] = color.b
 
       sizes[i] = 0.01 + random() * 0.03
-      velocities[i3] = (random() - 0.5) * 0.001
-      velocities[i3 + 1] = (random() - 0.5) * 0.001
-      velocities[i3 + 2] = (random() - 0.5) * 0.001
+      velocities[i3] = (random() - 0.5) * 0.0005
+      velocities[i3 + 1] = (random() - 0.5) * 0.0005
+      velocities[i3 + 2] = (random() - 0.5) * 0.0005
     }
     return { arr, colors, sizes, velocities }
-  }, [])
+  }, [count])
 
   useFrame(({ clock }) => {
     const dt = clock.getDelta()
@@ -278,8 +291,6 @@ function SkillParticleField({ progress }: { progress: number }) {
         pos[i3] += positions.velocities[i3] * 60 * dt
         pos[i3 + 1] += positions.velocities[i3 + 1] * 60 * dt
         pos[i3 + 2] += positions.velocities[i3 + 2] * 60 * dt
-
-        if (pos[i3 + 2] > -10) pos[i3 + 2] = -60
       }
       ref.current.geometry.attributes.position.needsUpdate = true
       ;(ref.current.material as THREE.PointsMaterial).opacity = 0.3 * sectionProgress
@@ -287,14 +298,13 @@ function SkillParticleField({ progress }: { progress: number }) {
   })
 
   return (
-    <points ref={ref} position={[0, 0, -35]}>
+    <points ref={ref}>
       <bufferGeometry>
         <bufferAttribute args={[positions.arr, 3]} attach="attributes-position" array={positions.arr} itemSize={3} />
         <bufferAttribute args={[positions.colors, 3]} attach="attributes-color" array={positions.colors} itemSize={3} />
         <bufferAttribute args={[positions.sizes, 1]} attach="attributes-size" array={positions.sizes} itemSize={1} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.04}
         vertexColors
         transparent
         sizeAttenuation

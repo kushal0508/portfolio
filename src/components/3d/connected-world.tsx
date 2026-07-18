@@ -6,6 +6,7 @@ import { MeshReflectorMaterial, Sparkles } from "@react-three/drei"
 import * as THREE from "three"
 import { useScrollState, SECTION_Z } from "@/lib/scroll-provider"
 import { WAYPOINTS } from "@/lib/camera-path"
+import type { DeviceTier } from "@/lib/device-detect"
 
 const PRIMARY = "#6c5ce7"
 const GLOW = "#a29bfe"
@@ -40,47 +41,63 @@ const SCENE_ACCENTS: Record<string, string> = {
  *   • Energy beams arcing between consecutive gateways overhead
  *   • Two layers of Sparkles dust for atmosphere
  */
-export function ConnectedWorld({ reducedMotion = false }: { reducedMotion?: boolean }) {
+export function ConnectedWorld({ reducedMotion = false, deviceTier = "high" }: { reducedMotion?: boolean; deviceTier?: DeviceTier }) {
   const { progress } = useScrollState()
+  const isLow = deviceTier === "low"
+  const isMid = deviceTier === "medium"
 
   return (
     <group>
-      <ReflectiveFloor />
+      <ReflectiveFloor deviceTier={deviceTier} />
       <PathRunway reducedMotion={reducedMotion} />
       <GatewayRings reducedMotion={reducedMotion} />
       <SideMonoliths reducedMotion={reducedMotion} />
-      <OverheadBeams progress={progress} reducedMotion={reducedMotion} />
+      {!isLow && <OverheadBeams progress={progress} reducedMotion={reducedMotion} />}
       <Sparkles
-        count={80}
+        count={isLow ? 20 : isMid ? 40 : 80}
         scale={[26, 14, 140]}
-        size={2}
+        size={isLow ? 1 : 2}
         speed={0.25}
-        opacity={0.4}
+        opacity={isLow ? 0.2 : 0.4}
         color={GLOW}
       />
-      <Sparkles
-        count={50}
-        scale={[22, 12, 140]}
-        size={1.4}
-        speed={0.4}
-        opacity={0.35}
-        color={ACCENT}
-      />
+      {!isLow && (
+        <Sparkles
+          count={isMid ? 25 : 50}
+          scale={[22, 12, 140]}
+          size={isLow ? 0.8 : 1.4}
+          speed={0.4}
+          opacity={0.35}
+          color={ACCENT}
+        />
+      )}
     </group>
   )
 }
 
 /** Premium reflective floor — the visual anchor of the whole journey. */
-function ReflectiveFloor() {
+function ReflectiveFloor({ deviceTier = "high" }: { deviceTier?: DeviceTier }) {
+  const isLow = deviceTier === "low"
+  const isMid = deviceTier === "medium"
+
+  if (isLow) {
+    return (
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.4, -60]}>
+        <planeGeometry args={[90, 240]} />
+        <meshBasicMaterial color="#080812" />
+      </mesh>
+    )
+  }
+
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.4, -60]}>
       <planeGeometry args={[90, 240]} />
       <MeshReflectorMaterial
-        resolution={512}
+        resolution={isMid ? 256 : 512}
         mixBlur={1.4}
         mixStrength={1.0}
-        blur={[420, 120]}
-        mirror={0.5}
+        blur={[isMid ? 200 : 420, isMid ? 60 : 120]}
+        mirror={isMid ? 0.3 : 0.5}
         depthScale={1.0}
         minDepthThreshold={0.4}
         maxDepthThreshold={1.2}
@@ -88,7 +105,7 @@ function ReflectiveFloor() {
         roughness={0.7}
         metalness={0.65}
         color="#080812"
-        envMapIntensity={0.7}
+        envMapIntensity={isMid ? 0.4 : 0.7}
       />
     </mesh>
   )
