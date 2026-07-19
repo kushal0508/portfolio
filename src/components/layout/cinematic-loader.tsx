@@ -33,7 +33,7 @@ export function CinematicLoader() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.15 }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[999999] flex flex-col items-center justify-center"
+          className="fixed inset-0 z-[99999999] flex flex-col items-center justify-center"
           style={{ background: "#08080f" }}
         >
           <motion.div
