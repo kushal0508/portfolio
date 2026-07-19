@@ -100,24 +100,22 @@ export default function RootLayout({
 }>) {
   return (
     <html
+      style={{ background: "#08080f", height: "100%", colorScheme: "dark" }}
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
-      style={{ background: "#08080f", minHeight: "100%" }}
     >
       <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `(function(){var d=document,h=d.documentElement;h.style.cssText='background:#08080f!important;height:100%;color-scheme:dark';var s=d.createElement('style');s.textContent='html,body{background:#08080f!important;height:100%;color-scheme:dark}body{min-height:100dvh!important}';d.head.insertBefore(s,d.head.firstChild);var e=d.createElement('div');e.id='__anti_flash';e.style.cssText='position:fixed;inset:0;background:#08080f;z-index:999999;pointer-events:none';h.appendChild(e);function m(n,c,md){var t=d.createElement('meta');t.name=n;t.content=c;if(md)t.media=md;d.head.insertBefore(t,d.head.firstChild)}m('theme-color','#08080f','(prefers-color-scheme: dark)');m('theme-color','#08080f','(prefers-color-scheme: light)');m('apple-mobile-web-app-capable','yes');m('apple-mobile-web-app-status-bar-style','black-translucent');setTimeout(function(){var el=d.getElementById('__anti_flash');if(el)el.remove()},5000);})();`,
+        }} />
         <style>{`
-          html,body{background:#08080f!important;margin:0;padding:0;color-scheme:dark;min-height:100%}
+          html,body{background:#08080f!important;margin:0;padding:0;color-scheme:dark!important;height:100%}
+          body{min-height:100dvh!important}
           ::view-transition-old,::view-transition-new{background:#08080f!important}
           @view-transition{navigation:auto}
-          @keyframes antiFlash{from{background:#08080f}to{background:#08080f}}
-          html{animation:antiFlash 10s}
         `}</style>
-        <script dangerouslySetInnerHTML={{
-          __html: `(function(){var d=document,h=d.documentElement;h.style.cssText='background:#08080f!important;min-height:100%';var s=d.createElement('style');s.textContent='html,body{background:#08080f!important;min-height:100%}body{min-height:100dvh!important}';d.head.insertBefore(s,d.head.firstChild);var e=d.createElement('div');e.id='__anti_flash';e.style.cssText='position:fixed;inset:0;background:#08080f;z-index:999999;pointer-events:none';h.appendChild(e);function m(n,c,md){var t=d.createElement('meta');t.name=n;t.content=c;if(md)t.media=md;d.head.insertBefore(t,d.head.firstChild)}m('theme-color','#08080f','(prefers-color-scheme: dark)');m('theme-color','#08080f','(prefers-color-scheme: light)');m('color-scheme','dark');m('apple-mobile-web-app-capable','yes');m('apple-mobile-web-app-status-bar-style','black-translucent');setTimeout(function(){var el=d.getElementById('__anti_flash');if(el)el.remove()},5000);})();`,
-        }} />
         <meta name="theme-color" content="#08080f" media="(prefers-color-scheme: dark)" />
         <meta name="theme-color" content="#08080f" media="(prefers-color-scheme: light)" />
-        <meta name="color-scheme" content="dark" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

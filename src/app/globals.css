@@ -68,6 +68,7 @@ html {
   overflow-x: hidden;
   color-scheme: dark;
   background: #08080f fixed;
+  background-color: #08080f !important;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -86,7 +87,7 @@ canvas {
 }
 
 body {
-  background: var(--background);
+  background: var(--background) !important;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   overflow-x: hidden;
@@ -96,6 +97,7 @@ body {
   min-height: 100vh;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  background-color: #08080f !important;
 }
 
 ::selection {
