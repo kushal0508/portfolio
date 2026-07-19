@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-const siteUrl = "https://kushalr.dev"
+const siteUrl = "https://kushal0508.github.io/portfolio"
 const siteName = "Kushal R Portfolio"
 
 export const metadata: Metadata = {

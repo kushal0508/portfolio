@@ -1,8 +1,12 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
+  output: "export",
+  basePath: "/portfolio",
+  assetPrefix: "/portfolio/",
   images: {
     formats: ["image/avif", "image/webp"],
+    unoptimized: true,
   },
   transpilePackages: ["three"],
   experimental: {
@@ -14,10 +18,6 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  },
-  // Generate sitemap and robots.txt
-  async rewrites() {
-    return []
   },
 }
 
