@@ -47,7 +47,7 @@ export const personalInfo = {
   phone: "+91 77952 67355",
   github: "https://github.com/kushal0508",
   linkedin: "https://www.linkedin.com/in/kushal-r-0256a631b/",
-  resume: "https://drive.google.com/file/d/1xQyFVL72GuuSois08TcHYEpzZwH67Bje/view",
+  resume: "https://drive.google.com/file/d/18_QjcR4mCdyM8BxDsAuQBng3nGXIBrkC/view",
   about:
     "I am a final-year BCA student passionate about building business-driven digital solutions using Odoo ERP and modern frontend technologies. I focus on ERP customization, responsive web design, and practical business workflows.",
   aboutExtended:

@@ -79,8 +79,6 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
   },
   manifest: `${siteUrl}/site.webmanifest`,
   alternates: {
@@ -104,9 +102,34 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      style={{ background: "#08080f" }}
     >
       <head>
-        <meta name="theme-color" content="#030305" />
+        <meta name="theme-color" content="#08080f" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#08080f" media="(prefers-color-scheme: light)" />
+        <script dangerouslySetInnerHTML={{
+          __html: `document.documentElement.style.background="#08080f"`,
+        }} />
+        <style>{`
+          html,body{background:#08080f!important;margin:0;padding:0;color-scheme:dark}
+          ::view-transition-old,::view-transition-new{background:#08080f!important}
+          @view-transition{navigation:auto}
+          @keyframes antiFlash{from{background:#08080f}to{background:#08080f}}
+          html{animation:antiFlash 10s}
+        `}</style>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function(){
+              var el=document.createElement('div');
+              el.id='__anti_flash';
+              el.style.cssText='position:fixed;inset:0;background:#08080f;z-index:99999;pointer-events:none';
+              if(document.body) document.body.appendChild(el);
+              else document.addEventListener('DOMContentLoaded',function(){document.body.appendChild(el)});
+              setTimeout(function(){var e=document.getElementById('__anti_flash');if(e)e.remove()},5000);
+            })();
+          `,
+        }} />
+        <meta name="color-scheme" content="dark" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
@@ -171,7 +194,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full bg-background text-foreground">
+      <body className="min-h-full bg-background text-foreground" style={{ background: "#08080f" }}>
         {children}
       </body>
     </html>
