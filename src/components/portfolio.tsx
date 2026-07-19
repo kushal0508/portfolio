@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ArrowDown, ArrowUpRight, BriefcaseBusiness, Download, ExternalLink, Mail, MapPin, Menu, X } from "lucide-react"
-import { experience, navItems, personalInfo, projects, skillGroups } from "@/lib/data"
+import { experience, navItems, personalInfo, projects, skillCategories } from "@/lib/data"
 
 const sectionIds = navItems.map((item) => item.href.slice(1))
 
@@ -84,16 +84,18 @@ export function Portfolio() {
         <section id="skills" className="section">
           <div className="section-intro"><p className="eyebrow">Capabilities</p><h2>A focused toolkit for ERP and web delivery.</h2><p>Core skills are organized by the work they support—not inflated proficiency scores.</p></div>
           <div className="skill-grid">
-            {skillGroups.map((group, index) => <article className="skill-group" key={group.label}><span>0{index + 1}</span><h3>{group.label}</h3><ul>{group.skills.map((skill) => <li key={skill}>{skill}</li>)}</ul></article>)}
+            {skillCategories.map((group, index) => <article className="skill-group" key={group.label}><span>0{index + 1}</span><h3>{group.label}</h3><ul>{group.items.map((skill) => <li key={skill.name}>{skill.name}</li>)}</ul></article>)}
           </div>
         </section>
 
         <section id="experience" className="section experience-section">
           <div className="section-intro"><p className="eyebrow">Experience</p><h2>Hands-on ERP implementation experience.</h2></div>
-          <article className="experience-card">
-            <div className="experience-meta"><BriefcaseBusiness aria-hidden="true" /><p>{experience.period}</p></div>
-            <div><h3>{experience.role}</h3><p className="company">{experience.company}</p><p className="experience-summary">{experience.summary}</p><ul className="achievement-list">{experience.achievements.map((achievement) => <li key={achievement}>{achievement}</li>)}</ul><div className="tags">{experience.technologies.map((tech) => <span key={tech}>{tech}</span>)}</div></div>
-          </article>
+          {experience.map((exp) => (
+            <article className="experience-card" key={exp.id}>
+              <div className="experience-meta"><BriefcaseBusiness aria-hidden="true" /><p>{exp.period}</p></div>
+              <div><h3>{exp.role}</h3><p className="company">{exp.company}</p><p className="experience-summary">{exp.summary}</p><ul className="achievement-list">{exp.achievements.map((achievement) => <li key={achievement}>{achievement}</li>)}</ul><div className="tags">{exp.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></div>
+            </article>
+          ))}
         </section>
 
         <section id="projects" className="section projects-section">
