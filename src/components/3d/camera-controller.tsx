@@ -3,13 +3,10 @@
 import { useRef } from "react"
 import { useFrame } from "@react-three/fiber"
 import { useScrollState } from "@/lib/scroll-provider"
-import { isMobileDevice } from "@/lib/device-detect"
-import type { DeviceTier } from "@/lib/device-detect"
 import * as THREE from "three"
 
 interface CameraControllerProps {
   reducedMotion?: boolean
-  deviceTier?: DeviceTier
 }
 
 // Reusable scratch objects to keep the per-frame loop allocation-free.
@@ -27,8 +24,18 @@ const _ZERO = new THREE.Vector3(0, 0, 0)
 
 /**
  * Drone-style camera controller with spline interpolation.
+ *
+ * Reads the choreographed path baked into the scroll state (position, lookAt,
+ * bank, fov, speed) and applies it with cinematic cubic easing. The camera also
+ * reacts to the cursor — a small translational parallax, a subtle heading
+ * yaw, and a roll that *counter-banks* into the path's banking so the world
+ * feels physically banked while the camera stays roughly level — plus a
+ * breathing/idle sway so the frame is never frozen.
+ *
+ * A pivot "rig" groups the camera so head-bob/parallax can be applied in
+ * the camera's local space without fighting the world-space path.
  */
-export function CameraController({ reducedMotion = false, deviceTier = "high" }: CameraControllerProps) {
+export function CameraController({ reducedMotion = false }: CameraControllerProps) {
   const {
     camX,
     camY,
@@ -43,9 +50,6 @@ export function CameraController({ reducedMotion = false, deviceTier = "high" }:
     velocity,
   } = useScrollState()
 
-  const isMobile = typeof window !== "undefined" ? isMobileDevice() : false
-  const isLow = deviceTier === "low"
-
   const lookAt = useRef(new THREE.Vector3(0, 1.4, -4))
   const idle = useRef(0)
   const camPosSmooth = useRef(new THREE.Vector3(camX, camY, camZ))
@@ -54,27 +58,35 @@ export function CameraController({ reducedMotion = false, deviceTier = "high" }:
 
   useFrame((state, delta) => {
     if (reducedMotion) {
+      // In reduced motion mode, just set position directly without animation
       state.camera.position.set(camX, camY, camZ)
       state.camera.lookAt(lookX, lookY, lookZ)
       return
     }
 
     const dt = Math.min(delta, 0.05)
-
-    // Adaptive damping values
-    const damp = isMobile || isLow ? 0.25 : 0.15
+    
+    // Cubic spline easing for ultra-smooth camera movement
+    prevProgress.current = state.clock.elapsedTime * 0.1
+    
+    // Adaptive damping based on velocity - slower when scrolling fast for stability
+    const baseDamp = 0.15
     const velocityFactor = Math.min(Math.abs(velocity) * 0.05, 0.3)
-    const smoothFactor = 1 - Math.pow(0.001, dt * (isMobile ? 0.6 : 0.8 - velocityFactor))
-    const lookDamp = 1 - Math.pow(isMobile ? 0.04 : 0.015, dt)
-    const bankDamp = 1 - Math.pow(isMobile ? 0.08 : 0.04, dt)
+    const damp = baseDamp + velocityFactor
+    const smoothFactor = 1 - Math.pow(0.001, dt * (0.8 - velocityFactor))
+    
+    const lookDamp = 1 - Math.pow(0.015, dt)
+    const bankDamp = 1 - Math.pow(0.04, dt)
 
     idle.current += dt * 0.3
 
     // --- Mouse parallax -------------------------------------------------
-    const parX = isMobile ? 0 : smoothMouseX * 1.8
-    const parY = isMobile ? 0 : -smoothMouseY * 1.1
-    const yaw = isMobile ? 0 : smoothMouseX * 0.05
-    const pitch = isMobile ? 0 : -smoothMouseY * 0.035
+    // Translate the camera slightly toward the cursor and yaw the heading a
+    // touch. Strong enough to feel alive, gentle enough to never disorient.
+    const parX = smoothMouseX * 1.8
+    const parY = -smoothMouseY * 1.1
+    const yaw = smoothMouseX * 0.05
+    const pitch = -smoothMouseY * 0.035
 
     // --- Idle breathing -------------------------------------------------
     const breathing = Math.sin(idle.current * 0.45) * 0.1
@@ -82,7 +94,9 @@ export function CameraController({ reducedMotion = false, deviceTier = "high" }:
     const swayX = Math.sin(idle.current * 0.22) * 0.04
 
     // --- Speed look-ahead ----------------------------------------------
-    const lookAhead = Math.min(Math.abs(velocity) * (isMobile ? 0.5 : 1.0), 1.2) * Math.sign(velocity || 1)
+    // Push the lookAt slightly forward when scrolling fast for a "rushing"
+    // sensation, and pull it back when slowing down.
+    const lookAhead = Math.min(Math.abs(velocity) * 1.0, 1.2) * Math.sign(velocity || 1)
 
     // --- Target transforms ---------------------------------------------
     _targetPos.set(
@@ -107,14 +121,18 @@ export function CameraController({ reducedMotion = false, deviceTier = "high" }:
     state.camera.position.copy(_pos)
 
     // --- Banking -------------------------------------------------------
-    const targetRoll = isMobile ? -bank * 0.2 : -bank * 0.45 + smoothMouseX * 0.015
-    bankSmooth.current = THREE.MathUtils.lerp(bankSmooth.current, targetRoll, 1 - Math.pow(isMobile ? 0.08 : 0.04, dt))
+    // We counter-bank half the path bank so the world tilts and the camera
+    // feels like it's leaning into the turn — a drone flying a curve.
+    const targetRoll = -bank * 0.45 + smoothMouseX * 0.015
+    bankSmooth.current = THREE.MathUtils.lerp(bankSmooth.current, targetRoll, bankDamp)
 
     _fwd.subVectors(_look, _pos)
     const fwdLen = _fwd.length()
     if (fwdLen > 1e-5) {
       _fwd.multiplyScalar(1 / fwdLen)
 
+      // Build a lookAt quaternion along the forward vector, then apply a
+      // roll around the camera's local Z (forward) axis.
       _m.lookAt(_ZERO, _fwd.clone().multiplyScalar(-1), _up)
       _lookQuat.setFromRotationMatrix(_m)
       _euler.set(0, 0, bankSmooth.current, "ZYX")
@@ -125,14 +143,17 @@ export function CameraController({ reducedMotion = false, deviceTier = "high" }:
     }
 
     // --- FOV breathing -------------------------------------------------
+    // Widen FOV with speed (sense of motion) and ease it back when idle.
     const cam = state.camera as THREE.PerspectiveCamera
-    if (cam.isPerspectiveCamera && !isMobile) {
+    if (cam.isPerspectiveCamera) {
       const speedFactor = Math.min(Math.abs(velocity) * 0.15, 1)
-      const fovTarget = camFov + Math.min(Math.abs(velocity) * 0.15, 1) * 5
-      cam.fov += (fovTarget - cam.fov) * (1 - Math.pow(0.001, dt * (0.8 - Math.min(Math.abs(velocity) * 0.05, 0.3)))) * 0.5
+      const fovTarget = camFov + speedFactor * 5
+      cam.fov += (fovTarget - cam.fov) * smoothFactor * 0.5
       cam.updateProjectionMatrix()
     }
 
+    // Expose a tiny "rig" pivot for child cameras/effects that want local
+    // head-bob without touching world placement. Cheap, allocation-free.
     void velocity
     void camFov
   })

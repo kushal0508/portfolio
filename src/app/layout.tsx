@@ -107,6 +107,8 @@ export default function RootLayout({
     >
       <head>
         <meta name="theme-color" content="#030305" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

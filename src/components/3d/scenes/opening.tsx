@@ -1,11 +1,10 @@
 "use client"
 
-import { useRef, useMemo, useState } from "react"
+import { useRef, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
 import { Float, Html } from "@react-three/drei"
 import * as THREE from "three"
 import { useScrollState } from "@/lib/scroll-provider"
-import type { DeviceTier } from "@/lib/device-detect"
 
 const PRIMARY = "#6c5ce7"
 const ACCENT = "#fbbf24"
@@ -14,32 +13,30 @@ const random = Math.random
 
 interface OpeningSceneProps {
   reducedMotion?: boolean
-  deviceTier?: DeviceTier
 }
 
-export function OpeningScene({ reducedMotion = false, deviceTier = "high" }: OpeningSceneProps) {
+export function OpeningScene({ reducedMotion = false }: OpeningSceneProps) {
   const { progress } = useScrollState()
   const groupRef = useRef<THREE.Group>(null)
   const innerRef = useRef<THREE.Group>(null)
-  const isLow = deviceTier === "low"
 
   const sectionProgress = Math.min(1, progress / 0.125)
 
-  const geometry = useMemo(() => new THREE.IcosahedronGeometry(1.8, isLow ? 1 : 3), [isLow])
+  const geometry = useMemo(() => new THREE.IcosahedronGeometry(1.8, 3), [])
   const material = useMemo(
     () =>
       new THREE.MeshPhysicalMaterial({
         color: PRIMARY,
         metalness: 0.6,
         roughness: 0.15,
-        transmission: isLow ? 0 : 0.3,
+        transmission: 0.3,
         thickness: 0.4,
         ior: 1.33,
-        clearcoat: isLow ? 0 : 1,
+        clearcoat: 1,
         clearcoatRoughness: 0.1,
-        envMapIntensity: isLow ? 0.5 : 1.5,
+        envMapIntensity: 1.5,
       }),
-    [isLow],
+    [],
   )
 
   const wireMaterial = useMemo(
@@ -70,7 +67,7 @@ export function OpeningScene({ reducedMotion = false, deviceTier = "high" }: Ope
   })
 
   const introOpacity = Math.max(0, 1 - progress / 0.1)
-  const particleCount = isLow ? 80 : 300
+  const particleCount = 300
   const positions = useMemo(() => {
     const arr = new Float32Array(particleCount * 3)
     const colors = new Float32Array(particleCount * 3)

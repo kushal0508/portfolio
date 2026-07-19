@@ -19,7 +19,6 @@ const CinematicCanvas = dynamic(
 export function CinematicWorld() {
   return (
     <ScrollProvider>
-      <div id="main-content" />
       <CinematicLoader />
       <CustomCursor />
       <Navigation />

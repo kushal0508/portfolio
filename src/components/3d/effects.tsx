@@ -13,42 +13,43 @@ import {
 } from "@react-three/postprocessing"
 import { ToneMappingMode } from "postprocessing"
 import { useScrollState } from "@/lib/scroll-provider"
-import type { DeviceTier } from "@/lib/device-detect"
 import * as THREE from "three"
 
 interface PostEffectsProps {
   reducedMotion?: boolean
-  deviceTier?: DeviceTier
 }
 
-export function PostEffects({ reducedMotion = false, deviceTier = "high" }: PostEffectsProps) {
+/**
+ * Premium cinematic post-processing stack.
+ *
+ *   • Bloom — driven by scene bloom palette (per-scene intensity).
+ *   • HueSaturation + BrightnessContrast — gentle color grading.
+ *   • ToneMapping — ACES filmic for premium highlight roll-off.
+ *   • Vignette — draws the eye toward the centre / camera lookAt.
+ *   • ChromaticAberration — sub-pixel, intensifies with scroll speed.
+ *
+ * Intensities stay modest on purpose to protect a stable 60 FPS budget.
+ *
+ * Note on ambient occlusion: a real SSAO pass (e.g. N8AO / SSAO) emits
+ * `glBlitFramebuffer` depth/stencil warnings and causes GPU readback stalls
+ * on a wide range of drivers here, which is unacceptable for a smooth
+ * premium feel. We instead fake AO via the atmospheric vignette + contact
+ * shadows baked into the connected-world floor + fog falloff, which reads as
+ * authentic contact depth without any GPU-side stalls.
+ */
+export function PostEffects({ reducedMotion = false }: PostEffectsProps) {
   const { progress, bloom, velocity } = useScrollState()
 
-  if (reducedMotion) return null
-  if (deviceTier === "low") return null
-
-  const speedAbs = Math.min(Math.abs(velocity), 4)
-  const caOffset = 0.0006 + speedAbs * 0.0006
-  const msaaSamples = deviceTier === "high" ? 4 : 2
-
-  if (deviceTier === "medium") {
-    return (
-      <EffectComposer multisampling={msaaSamples}>
-        <Bloom
-          luminanceThreshold={0.1}
-          luminanceSmoothing={0.08}
-          intensity={0.4 + bloom * 0.35}
-          mipmapBlur
-          radius={0.6}
-        />
-        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-        <Vignette eskil={false} offset={0.25} darkness={0.5} />
-      </EffectComposer>
-    )
+  if (reducedMotion) {
+    return null
   }
 
+  // Speed-reactive chromatic aberration — a whisper, never a smear.
+  const speedAbs = Math.min(Math.abs(velocity), 4)
+  const caOffset = 0.0006 + speedAbs * 0.0006
+
   return (
-    <EffectComposer multisampling={msaaSamples}>
+    <EffectComposer multisampling={4}>
       <Bloom
         luminanceThreshold={0.06}
         luminanceSmoothing={0.1}
@@ -74,16 +75,23 @@ interface AmbientParticlesProps {
   reducedMotion?: boolean
 }
 
-export function AmbientParticles({ count = 800, reducedMotion = false }: AmbientParticlesProps) {
+/**
+ * Ambient drifting dust — a thin layer of particles spanning the whole
+ * journey so the air never feels empty, even between scenes. Keeps the
+ * same color-glow tonality as the rest of the world.
+ */
+export function AmbientParticles({ count = 1200, reducedMotion = false }: AmbientParticlesProps) {
   const ref = useRef<THREE.Points>(null)
   const posRef = useRef<Float32Array | null>(null)
 
+  // eslint-disable-next-line react-hooks/refs
   const [geometry] = useState(() => {
     const positions = new Float32Array(count * 3)
     const colors = new Float32Array(count * 3)
 
     for (let i = 0; i < count; i++) {
       const i3 = i * 3
+      // Spread across the whole journey Z range with some lateral drift.
       positions[i3] = (Math.random() - 0.5) * 160
       positions[i3 + 1] = (Math.random() - 0.5) * 60
       positions[i3 + 2] = -10 - Math.random() * 120

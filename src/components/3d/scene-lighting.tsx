@@ -5,8 +5,6 @@ import { useFrame } from "@react-three/fiber"
 import { Environment, Lightformer } from "@react-three/drei"
 import * as THREE from "three"
 import { useScrollState } from "@/lib/scroll-provider"
-import type { DeviceTier } from "@/lib/device-detect"
-import { isMobileDevice } from "@/lib/device-detect"
 
 // Palette constants — match the waypoints in lib/camera-path.ts so the lights
 // react to the same cinematic journey.
@@ -42,12 +40,7 @@ const _target = new THREE.Vector3()
  * A single "follower" point light rides the camera and gently slides toward
  * the mouse cursor to make the world feel like it reacts to the visitor.
  */
-interface SceneLightingProps {
-  reducedMotion?: boolean
-  deviceTier?: DeviceTier
-}
-
-export function SceneLighting({ reducedMotion = false, deviceTier = "high" }: SceneLightingProps) {
+export function SceneLighting() {
   const {
     progress,
     camX,
@@ -189,8 +182,8 @@ export function SceneLighting({ reducedMotion = false, deviceTier = "high" }: Sc
         distance={25}
         intensity={8}
         color={COLORS.PRIMARY}
-        castShadow={deviceTier !== "low"}
-        shadow-mapSize={deviceTier === "medium" ? [512, 512] : [1024, 1024]}
+        castShadow
+        shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0005}
       />
 
@@ -255,7 +248,7 @@ export function SceneLighting({ reducedMotion = false, deviceTier = "high" }: Sc
       />
 
       {/* Environment + lightformers drive reflections on the glass / metals. */}
-      <Environment resolution={deviceTier === "low" ? 64 : deviceTier === "medium" ? 128 : 256} frames={deviceTier === "high" ? 1 : Infinity}>
+      <Environment resolution={256} frames={1}>
         <Lightformer
           form="rect"
           intensity={2.4}

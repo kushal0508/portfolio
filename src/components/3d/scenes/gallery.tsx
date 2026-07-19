@@ -5,7 +5,6 @@ import { useFrame } from "@react-three/fiber"
 import { Float } from "@react-three/drei"
 import * as THREE from "three"
 import { useScrollState } from "@/lib/scroll-provider"
-import type { DeviceTier } from "@/lib/device-detect"
 
 const PRIMARY = "#6c5ce7"
 const ACCENT = "#fbbf24"
@@ -14,26 +13,25 @@ const CYAN = "#00cec9"
 
 const random = Math.random
 
-export function GalleryScene({ deviceTier = "high" }: { deviceTier?: DeviceTier }) {
+export function GalleryScene() {
   const { progress } = useScrollState()
   const sectionProgress = Math.max(0, Math.min(1, (progress - 0.5) / 0.125))
   const intensity = Math.max(0, 1 - Math.abs(progress - 0.5625) / 0.0625)
 
   return (
     <group scale={intensity}>
-      <GalleryHall sectionProgress={sectionProgress} deviceTier={deviceTier} />
-      <ProjectDisplays sectionProgress={sectionProgress} deviceTier={deviceTier} />
-      <GalleryLighting sectionProgress={sectionProgress} deviceTier={deviceTier} />
-      <GalleryParticles sectionProgress={sectionProgress} deviceTier={deviceTier} />
+      <GalleryHall sectionProgress={sectionProgress} />
+      <ProjectDisplays sectionProgress={sectionProgress} />
+      <GalleryLighting sectionProgress={sectionProgress} />
+      <GalleryParticles sectionProgress={sectionProgress} />
     </group>
   )
 }
 
-function GalleryHall({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
-  const isLow = deviceTier === "low"
+function GalleryHall({ sectionProgress }: { sectionProgress: number }) {
   const wallGeometry = useMemo(() => new THREE.BoxGeometry(20, 10, 0.2), [])
   const floorGeometry = useMemo(() => new THREE.PlaneGeometry(24, 50), [])
-  const pillarGeometry = useMemo(() => new THREE.CylinderGeometry(0.4, 0.4, 10, isLow ? 8 : 16), [isLow])
+  const pillarGeometry = useMemo(() => new THREE.CylinderGeometry(0.4, 0.4, 10, 16), [])
 
   const wallMaterial = useMemo(
     () =>
@@ -139,8 +137,7 @@ function GalleryHall({ sectionProgress, deviceTier }: { sectionProgress: number;
   )
 }
 
-function ProjectDisplays({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
-  const isLow = deviceTier === "low"
+function ProjectDisplays({ sectionProgress }: { sectionProgress: number }) {
   const projects = useMemo(
     () => [
       { id: 1, title: "WerWoods", color: "#f59e0b", tags: ["Odoo ERP", "E-commerce"] },
@@ -219,7 +216,7 @@ function ProjectDisplays({ sectionProgress, deviceTier }: { sectionProgress: num
                 position={[-1.55, 0, 0.3]}
                 scale={sectionProgress}
               >
-                <cylinderGeometry args={[0.02, 0.02, 2.2, isLow ? 4 : 8]} />
+                <cylinderGeometry args={[0.02, 0.02, 2.2, 8]} />
                 <meshBasicMaterial
                   color={p.color}
                   transparent
@@ -233,7 +230,7 @@ function ProjectDisplays({ sectionProgress, deviceTier }: { sectionProgress: num
                 position={[0, -1.05, 0.3]}
                 scale={sectionProgress}
               >
-                <cylinderGeometry args={[0.02, 0.02, 3.2, isLow ? 4 : 8]} />
+                <cylinderGeometry args={[0.02, 0.02, 3.2, 8]} />
                 <meshBasicMaterial
                   color={p.color}
                   transparent
@@ -268,8 +265,7 @@ function ProjectDisplays({ sectionProgress, deviceTier }: { sectionProgress: num
   )
 }
 
-function GalleryLighting({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
-  const isLow = deviceTier === "low"
+function GalleryLighting({ sectionProgress }: { sectionProgress: number }) {
   const spots = useMemo(
     () =>
       Array.from({ length: 10 }).map((_, i) => {
@@ -300,14 +296,14 @@ function GalleryLighting({ sectionProgress, deviceTier }: { sectionProgress: num
             decay={2}
             distance={15}
             castShadow
-            shadow-mapSize-width={isLow ? 256 : 512}
-            shadow-mapSize-height={isLow ? 256 : 512}
+            shadow-mapSize-width={512}
+            shadow-mapSize-height={512}
           />
           <mesh
             position={[0, 0, 0]}
             scale={0.2 * sectionProgress}
           >
-            <cylinderGeometry args={[0.1, 0.15, 0.3, isLow ? 8 : 16]} />
+            <cylinderGeometry args={[0.1, 0.15, 0.3, 16]} />
             <meshPhysicalMaterial
               color="#1a1a3a"
               metalness={0.8}
@@ -321,9 +317,8 @@ function GalleryLighting({ sectionProgress, deviceTier }: { sectionProgress: num
   )
 }
 
-function GalleryParticles({ sectionProgress, deviceTier }: { sectionProgress: number; deviceTier: DeviceTier }) {
-  const isLow = deviceTier === "low"
-  const count = isLow ? 250 : 600
+function GalleryParticles({ sectionProgress }: { sectionProgress: number }) {
+  const count = 600
   const ref = useRef<THREE.Points>(null)
 
   const positions = useMemo(() => {
@@ -349,7 +344,7 @@ function GalleryParticles({ sectionProgress, deviceTier }: { sectionProgress: nu
       sizes[i] = 0.008 + random() * 0.015
     }
     return { arr, colors, sizes }
-  }, [count])
+  }, [])
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()

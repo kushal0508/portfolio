@@ -29,7 +29,7 @@ export function TransitionStreams() {
 
   // Build a flowing particle band along each path segment.
   const { positions, colors, count, segPositions } = useMemo(() => {
-    const perSeg = 400
+    const perSeg = 600
     const total = perSeg * SEGMENTS
     const arr = new Float32Array(total * 3)
     const col = new Float32Array(total * 3)
