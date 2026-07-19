@@ -105,10 +105,8 @@ export default function RootLayout({
       style={{ background: "#08080f" }}
     >
       <head>
-        <meta name="theme-color" content="#08080f" media="(prefers-color-scheme: dark)" />
-        <meta name="theme-color" content="#08080f" media="(prefers-color-scheme: light)" />
         <script dangerouslySetInnerHTML={{
-          __html: `document.documentElement.style.background="#08080f"`,
+          __html: `document.documentElement.style.background="#08080f";(function(){function m(n,c,md){var e=document.createElement('meta');e.name=n;e.content=c;if(md)e.media=md;document.head.insertBefore(e,document.head.firstChild)}m('theme-color','#08080f','(prefers-color-scheme: dark)');m('theme-color','#08080f','(prefers-color-scheme: light)');m('color-scheme','dark');m('apple-mobile-web-app-capable','yes');m('apple-mobile-web-app-status-bar-style','black-translucent')})();`,
         }} />
         <style>{`
           html,body{background:#08080f!important;margin:0;padding:0;color-scheme:dark}
@@ -117,6 +115,11 @@ export default function RootLayout({
           @keyframes antiFlash{from{background:#08080f}to{background:#08080f}}
           html{animation:antiFlash 10s}
         `}</style>
+        <meta name="theme-color" content="#08080f" media="(prefers-color-scheme: dark)" />
+        <meta name="theme-color" content="#08080f" media="(prefers-color-scheme: light)" />
+        <meta name="color-scheme" content="dark" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <script dangerouslySetInnerHTML={{
           __html: `
             (function(){
@@ -129,7 +132,6 @@ export default function RootLayout({
             })();
           `,
         }} />
-        <meta name="color-scheme" content="dark" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <script
