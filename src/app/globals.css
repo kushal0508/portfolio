@@ -63,9 +63,6 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: var(--nav-height);
-  overflow-x: hidden;
   color-scheme: dark;
   background: #08080f fixed;
   background-color: #08080f !important;
@@ -77,9 +74,6 @@ canvas {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
 }
 
 body {

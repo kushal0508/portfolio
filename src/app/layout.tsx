@@ -100,17 +100,17 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      style={{ background: "#08080f", height: "100%", colorScheme: "dark" }}
+      style={{ background: "#08080f", minHeight: "100%", height: "100%", colorScheme: "dark" }}
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${geistMono.variable} min-h-full antialiased dark`}
     >
       <head>
         <script dangerouslySetInnerHTML={{
-          __html: `(function(){var d=document,h=d.documentElement;h.style.cssText='background:#08080f!important;height:100%;color-scheme:dark';var s=d.createElement('style');s.textContent='html,body{background:#08080f!important;height:100%;color-scheme:dark}body{min-height:100dvh!important;margin:0!important}';d.head.insertBefore(s,d.head.firstChild);var e=d.createElement('div');e.id='__anti_flash';e.style.cssText='position:fixed;inset:0;background:#08080f;z-index:9999999;pointer-events:none';h.appendChild(e);function m(n,c,md){var t=d.createElement('meta');t.name=n;t.content=c;if(md)t.media=md;d.head.insertBefore(t,d.head.firstChild)}m('theme-color','#08080f','(prefers-color-scheme: dark)');m('theme-color','#08080f','(prefers-color-scheme: light)');m('apple-mobile-web-app-capable','yes');m('apple-mobile-web-app-status-bar-style','black-translucent');setTimeout(function(){var el=d.getElementById('__anti_flash');if(el)el.remove()},5000);})();`,
+          __html: `(function(){var d=document,h=d.documentElement;h.style.cssText='background:#08080f!important;min-height:100%;color-scheme:dark';var s=d.createElement('style');s.textContent='html{min-height:100%}body{min-height:100dvh}html,body{background:#08080f!important;margin:0;padding:0;color-scheme:dark!important}';d.head.insertBefore(s,d.head.firstChild);var e=d.createElement('div');e.id='__anti_flash';e.style.cssText='position:fixed;inset:0;background:#08080f;z-index:9999999;pointer-events:none';h.appendChild(e);function m(n,c,md){var t=d.createElement('meta');t.name=n;t.content=c;if(md)t.media=md;d.head.insertBefore(t,d.head.firstChild)}m('theme-color','#08080f','(prefers-color-scheme: dark)');m('theme-color','#08080f','(prefers-color-scheme: light)');m('apple-mobile-web-app-capable','yes');m('apple-mobile-web-app-status-bar-style','black-translucent');setTimeout(function(){var el=d.getElementById('__anti_flash');if(el)el.remove()},5000);})();`,
         }} />
         <style>{`
-          html,body{background:#08080f!important;margin:0;padding:0;color-scheme:dark!important;height:100%}
-          body{min-height:100dvh!important}
+          html{min-height:100%}body{min-height:100dvh}
+          html,body{background:#08080f!important;margin:0;padding:0;color-scheme:dark!important}
           ::view-transition-old(root),::view-transition-new(root){background:#08080f!important}
           ::view-transition-group(root){background:#08080f}
         `}</style>
