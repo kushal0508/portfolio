@@ -25,7 +25,10 @@ export function CinematicWorld() {
       <JourneyCompass />
       <div className="vignette" />
       <div className="film-grain" />
-      <div className="fixed inset-0 z-0">
+      <div
+        className="fixed inset-0 z-0"
+        style={{ transform: "translateZ(0)", backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
+      >
         <Suspense fallback={null}>
           <CinematicCanvas />
         </Suspense>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { Canvas } from "@react-three/fiber"
+import type { WebGLRenderer } from "three"
 import { CameraController } from "./camera-controller"
 import { PostEffects, AmbientParticles } from "./effects"
 import { SceneLighting } from "./scene-lighting"
@@ -62,12 +63,18 @@ export default function CinematicCanvas() {
     return () => mediaQuery.removeEventListener("change", handler)
   }, [])
 
+  const handleCreated = (state: { gl: WebGLRenderer }) => {
+    state.gl.domElement.style.background = "#08080f"
+  }
+
   return (
     <ErrorBoundary fallback={<CanvasErrorFallback />}>
       <ThreeDCanvasWrapper fallback={<CanvasErrorFallback />}>
         <Canvas
           camera={{ position: [0, 1.6, 11], fov: 58, near: 0.1, far: 200 }}
           dpr={[1, 1.5]}
+          style={{ background: "#08080f" }}
+          onCreated={handleCreated}
           gl={{
             antialias: true,
             alpha: false,
