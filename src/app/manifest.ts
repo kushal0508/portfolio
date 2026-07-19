@@ -7,13 +7,13 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Kushal R Portfolio",
     short_name: "Kushal R",
     description: "Personal portfolio of Kushal R — Odoo Techno-Functional Intern & Frontend Developer",
-    start_url: "/",
+    start_url: "/portfolio/",
     display: "standalone",
     background_color: "#08080f",
-    theme_color: "#6c5ce7",
+    theme_color: "#08080f",
     icons: [
       {
-        src: "/favicon.ico",
+        src: "/portfolio/favicon.ico",
         sizes: "any",
         type: "image/x-icon",
       },

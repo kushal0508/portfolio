@@ -80,7 +80,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
-  manifest: `${siteUrl}/site.webmanifest`,
+  manifest: `${siteUrl}/manifest.webmanifest`,
   alternates: {
     canonical: siteUrl,
     languages: {
