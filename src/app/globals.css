@@ -72,10 +72,6 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-@view-transition {
-  navigation: auto;
-}
-
 canvas {
   background: #08080f !important;
 }
